@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('status_of_lifelines', function (Blueprint $table) {
-            $table->string('communication')->nullable()->after('road_bridges');
+        Schema::create('patient_catered', function (Blueprint $table) {
+            $table->id();
+            $table->string('health_facility')->nullable();
+            $table->integer('no_of_patients')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('status_of_lifelines', function (Blueprint $table) {
-            $table->dropColumn('communication');
-        });
+        Schema::dropIfExists('patient_catered');
     }
 };

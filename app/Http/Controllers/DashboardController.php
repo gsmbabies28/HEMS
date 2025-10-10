@@ -11,6 +11,7 @@ use App\Models\HospitalCensus;
 use App\Models\MedicalServicesProvided;
 use App\Models\MobilizedResources;
 use App\Models\OtherMedicalServicesProvided;
+use App\Models\PatientCatered;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -28,6 +29,7 @@ class DashboardController extends Controller
         $bloodDataProp = OtherMedicalServicesProvided::all();
         $mobilizedResources = MobilizedResources::first();
         $hospitalCensus = HospitalCensus::all();
+        $patientCatered = PatientCatered::first();
 
         return Inertia::render('Welcome', [
             'affectedDataProp' => $affectedData,
@@ -39,6 +41,7 @@ class DashboardController extends Controller
             'bloodDataProp' => $bloodDataProp,
             'mobilizedResourcesProp' => $mobilizedResources,
             'hospitalCensusProp' => $hospitalCensus,
+            'patientCateredProp' => $patientCatered,
         ]);
     }
 
@@ -55,6 +58,7 @@ class DashboardController extends Controller
             'bloodData' => 'required|array',
             'mobilizedResources' => 'required|array',
             'hospitalCensus' => 'required|array',
+            'patientCatered' => 'required|array',
         ]);
 
         // Use the helper for each model group
@@ -64,11 +68,11 @@ class DashboardController extends Controller
         $this->updateRecord(HealthClusterTeam::class, $validatedData['healthClusterTeams']);
         $this->updateRecord(MedicalServicesProvided::class, $validatedData['medicalServicesProvided']);
         $this->updateRecord(MobilizedResources::class, $validatedData['mobilizedResources']);
+        $this->updateRecord(PatientCatered::class, $validatedData['patientCatered']);
         $this->updateMultipleRecords(HealthFacility::class, $validatedData['healthFacilities']);
         $this->updateMultipleRecords(OtherMedicalServicesProvided::class, $validatedData['bloodData']);
         $this->updateMultipleRecords(HospitalCensus::class, $validatedData['hospitalCensus']);
 
-        // return back()->with('success', 'Data updated successfully.');
     }
 
     /**

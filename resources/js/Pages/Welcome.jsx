@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { AlertTriangle, Users, Heart, Activity, Zap, Droplet, Home, Edit2, Save, Building2 } from 'lucide-react';
+import { AlertTriangle, Users, Heart, Activity, Zap, Droplet, Home, Edit2, Save, Building2, Nfc, HandPlatter, X } from 'lucide-react';
 import { router, useForm, usePage } from '@inertiajs/react';
 
-export default function Welcome({affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp}) {
+export default function Welcome({affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp  }) {
   const [selectedLGU, setSelectedLGU] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
@@ -20,8 +20,8 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       other: 0
     }
   );
-  
-  console.log(hospitalCensusProp);
+  const [patientCatered, setPatientCatered] = useState(patientCateredProp);
+
   // Section references for scrolling
   const sectionRefs = useRef([]);
   
@@ -201,6 +201,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       power: 'Fully Functional',
       water: 'Fully Functional',
       roads: 'Partly Functional (some areas still have difficulty in water access)',
+      communications: 'Fully Functional',
       status: 'warning'
     },
     {
@@ -208,6 +209,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       power: 'Fully Functional',
       water: 'Fully Functional',
       roads: 'Partly Functional (some areas still have difficulty in water access; in case power supply occur, municipality will have no access to water)',
+      communications: 'Fully Functional',
       status: 'warning'
     },
     {
@@ -215,6 +217,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       power: 'Fully Functional',
       water: 'Fully Functional',
       roads: 'Partly Functional (some water sources still needs repair)',
+      communications: 'Fully Functional',
       status: 'warning'
     },
     {
@@ -222,6 +225,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       power: 'Fully Functional',
       water: 'Fully Functional',
       roads: 'Fully Functional',
+      communications: 'Fully Functional',
       status: 'good'
     },
     {
@@ -229,6 +233,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       power: 'Fully Functional',
       water: 'Partly Functional (96% Energized)',
       roads: 'Partly Functional (limited access especially to mountainous barangay)',
+      communications: 'Fully Functional',
       status: 'warning'
     },
     {
@@ -236,6 +241,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       power: 'Fully Functional',
       water: 'Fully Functional',
       roads: 'Totally non-functional (still ongoing repair of water sources and pipes)',
+      communications: 'Fully Functional',
       status: 'critical'
     },
     {
@@ -243,6 +249,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       power: 'Fully Functional',
       water: 'Fully Functional',
       roads: 'Partly Functional (7 barangays have no access to water)',
+      communications: 'Fully Functional',
       status: 'warning'
     }
   ];
@@ -280,6 +287,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         bloodData: bloodData,
         mobilizedResources: mobilizedResources,
         hospitalCensus: hospitalCensus,
+        patientCatered: patientCatered,
       },{preserveScroll:true});
 
       setEditMode(false);
@@ -301,14 +309,24 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         </div>
       
       </div>
-      <div className="fixed top-4 right-4 z-20">
+      <div className="fixed bottom-6 right-6 z-50 flex gap-2">
+        {editMode && (
           <button
+            onClick={() => setEditMode(false)}
+            className="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all shadow-lg bg-red-600 hover:bg-red-700 text-white"
+          >
+            <X size={18} />
+            Cancel
+          </button>
+        )}
+        
+        <button
           onClick={() => {
             if (!editMode) {
               setEditMode(true);
             }
           }}
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all shadow-lg ${
+          className={`flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all shadow-lg ${
             editMode 
               ? 'bg-green-600 hover:bg-green-700 text-white' 
               : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -335,10 +353,10 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       <div 
         ref={el => sectionRefs.current[0] = el}
         id="top-stats"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6 transition-opacity duration-500"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 transition-opacity duration-500"
       >
         {/* Affected Population Card */}
-        <div className="lg:col-span-2 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-6 shadow-xl">
+        <div className="lg:col-span-1 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-6 shadow-xl">
           <div className="flex items-start justify-between mb-4">
             <div>
               <h3 className="text-blue-100 text-sm font-semibold mb-1">AFFECTED AND DISPLACED</h3>
@@ -391,7 +409,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         </div>
 
         {/* Casualties Card */}
-        <div className="lg:col-span-2 bg-gradient-to-br from-red-600 to-red-700 rounded-lg p-6 shadow-xl">
+        <div className="lg:col-span-1 bg-gradient-to-br from-red-600 to-red-700 rounded-lg p-6 shadow-xl">
           <div className="flex items-start justify-between mb-4">
             <div>
               <h3 className="text-red-100 text-sm font-semibold mb-1">CASUALTIES</h3>
@@ -430,6 +448,30 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
           <p className="text-red-200 text-xs mt-4 italic">*From reports of CHD Central Visayas. Validation is still being conducted</p>
         </div>
         
+        {/* Patients Catered */}
+        <div className="bg-slate-400 rounded-lg p-6 shadow-xl border border-slate-700">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h3 className="text-black text-sm font-semibold mb-1">PATIENT CATERED</h3>
+            </div>
+            <HandPlatter className="text-black" size={28} />
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              {editMode ? (
+                <input
+                  type="number"
+                  value={patientCatered.no_of_patients}
+                  onChange={(e) => setPatientCatered(prev => ({ ...prev, no_of_patients: parseInt(e.target.value) || 0 }))}
+                  className="bg-slate-500 text-white text-4xl font-bold px-2 py-1 rounded w-24 text-right"
+                />
+              ) : (
+                <span className="text-white text-4xl font-bold">{patientCatered.no_of_patients}</span>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Quick Status */}
         <div className="bg-slate-800 rounded-lg p-6 shadow-xl border border-slate-700">
           <h3 className="text-slate-300 text-sm font-semibold mb-4">QUICK STATUS</h3>
@@ -519,6 +561,12 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
                     Road/Bridges
                   </div>
                 </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase">
+                  <div className="flex items-center gap-2">
+                    <Nfc size={16} className="text-orange-400" />
+                    Communications
+                  </div>
+                </th>
                 <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300 uppercase">Status</th>
               </tr>
             </thead>
@@ -566,6 +614,15 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
                       )}
                     </div>
                   </td>
+                  <td className="px-4 py-4">
+                    <span className={`text-xs px-3 py-1 rounded-full ${
+                      item.communications === 'Fully Functional' 
+                        ? 'bg-green-900 text-green-300 border border-green-700' 
+                        : 'bg-yellow-900 text-yellow-300 border border-yellow-700'
+                    }`}>
+                      {item.communications || 'N/A'}
+                    </span>
+                  </td>
                   <td className="px-4 py-4 text-center">
                     <div className={`w-4 h-4 rounded-full ${getStatusColor(item.status)} mx-auto shadow-lg`}></div>
                   </td>
@@ -573,12 +630,6 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
               ))}
             </tbody>
           </table>
-        </div>
-
-        <div className="bg-slate-750 p-4 border-t border-slate-700">
-          <p className="text-slate-400 text-xs">
-            <span className="font-semibold">Note:</span> Communications is FULLY FUNCTIONAL
-          </p>
         </div>
       </div>
 
@@ -588,10 +639,10 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         id="health-facilities"
         className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6 transition-opacity duration-500"
       >
-        <div className="bg-gradient-to-r from-orange-700 to-orange-800 p-4 border-b border-orange-600">
+        <div className="bg-gradient-to-r from-orange-700F to-orange-800 p-4 border-b border-orange-600">
           <h2 className="text-white text-lg font-bold flex items-center gap-2">
             <Activity className="text-orange-300" size={24} />
-            DAMAGED HEALTH FACILITIES
+            STATUS OF HEALTH FACILITIES
           </h2>
         </div>
 
@@ -746,7 +797,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         <div className="bg-gradient-to-r from-green-700 to-green-800 p-4 border-b border-green-600">
           <h2 className="text-white text-lg font-bold flex items-center gap-2">
             <Heart className="text-green-300" size={24} />
-            MEDICAL SERVICES PROVIDED
+            MEDICAL SERVICES RENDERED
           </h2>
         </div>
 
@@ -884,10 +935,33 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6 transition-opacity duration-500"
       >
         <div className="bg-gradient-to-r from-emerald-700 to-emerald-800 p-4 border-b border-emerald-600">
-          <h2 className="text-white text-lg font-bold flex items-center gap-2">
-            <Heart className="text-emerald-300" size={24} />
-            OTHER MEDICAL SERVICES PROVIDED
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-white text-lg font-bold flex items-center gap-2">
+              <Heart className="text-emerald-300" size={24} />
+              OTHER MEDICAL SERVICES RENDERED
+            </h2>
+            {editMode && (
+              <button
+                onClick={() => {
+                  const facilityName = prompt("Enter Blood Service Facility name:");
+                  const recipient = prompt("Enter recipient:");
+                  if (facilityName && facilityName.trim()) {
+                    const newRow = {
+                      blood_service_facility: facilityName.trim(),
+                      no_of_blood_units: 0,
+                      human_milk: 0,
+                      vaccines: 0,
+                      recipient: recipient ? recipient.trim() : '',
+                    };
+                    setBloodData([...bloodData, newRow]);
+                  }
+                }}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded text-sm font-semibold transition-colors"
+              >
+                + Add Row
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="p-6">
@@ -919,7 +993,21 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
                   bloodData.map((data, index) => (
                     <tr key={index}>
                       <td className="border-2 border-slate-600 bg-slate-700 px-4 py-3">
-                        <span className="text-white text-sm">{data.blood_service_facility}</span>
+                        {editMode ? (
+                          <input
+                            type="text"
+                            value={data.blood_service_facility}
+                            onChange={(e) => {
+                              const updatedBloodData = [...bloodData];
+                              updatedBloodData[index].blood_service_facility = e.target.value || '';
+                              setBloodData(updatedBloodData)
+                            }}
+                            className="w-full bg-slate-700 text-slate-200 text-xs  font-bold px-2 py-1 rounded w-24 text-right"
+                          />
+                          ) : (
+                            <span className="text-slate-200 text-2xl">{data.blood_service_facility}</span>
+                          )  
+                        }
                       </td>
                       <td className="border-2 border-slate-600 bg-slate-750 px-4 py-3">
                         {editMode ? (
@@ -974,7 +1062,21 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
                       </td>
                       
                       <td className="border-2 border-slate-600 bg-slate-750 px-4 py-3">
-                        <span className="text-slate-300 text-xs">{data.recipient}</span>
+                        {editMode ? (
+                          <input
+                            type="text"
+                            value={data.recipient}
+                            onChange={(e) => {
+                              const updatedBloodData = [...bloodData];
+                              updatedBloodData[index].recipient = e.target.value || '';
+                              setBloodData(updatedBloodData)
+                            }}
+                            className="w-full bg-slate-700 text-slate-200 text-xs  font-bold px-2 py-1 rounded w-24 text-right"
+                          />
+                          ) : (
+                            <span className="text-slate-200 text-2xl">{data.recipient}</span>
+                          )  
+                        }
                       </td>
                     </tr>
                   ))
@@ -992,10 +1094,38 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6 transition-opacity duration-500"
       >
         <div className="bg-gradient-to-r from-green-700 to-green-800 p-4 border-b border-green-600">
-          <h2 className="text-white text-lg font-bold flex items-center gap-2">
-            <Building2 className="text-green-300" size={24} />
-            HOSPITAL CENSUS
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-white text-lg font-bold flex items-center gap-2">
+              <Building2 className="text-green-300" size={24} />
+              HOSPITAL CENSUS
+            </h2>
+            {editMode && (
+              <button
+                onClick={() => {
+                  const hospitalName = prompt("Enter Hospital name:");
+                  if (hospitalName && hospitalName.trim()) {
+                    const newRow = {
+                      hospital_name: hospitalName.trim(),
+                      under_10: 0,
+                      age_10_20: 0,
+                      age_21_59: 0,
+                      age_60_above: 0,
+                      male: 0,
+                      female: 0,
+                      admitted: 0,
+                      discharged: 0,
+                      died: 0,
+                      operated: 0
+                    };
+                    setHospitalCensus([...hospitalCensus, newRow]);
+                  }
+                }}
+                className="bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded text-sm font-semibold transition-colors"
+              >
+                + Add Row
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="overflow-x-auto">

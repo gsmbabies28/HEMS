@@ -8,6 +8,7 @@ class OtherMedicalServicesProvided extends Model
 {
     protected $table = 'other_medical_services_provided';
     protected $fillable = [
+        'blood_service_facility',
         'no_of_blood_units',
         'recipient',
         'human_milk',
