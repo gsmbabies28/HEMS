@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { AlertTriangle, Users, Heart, Activity, Zap, Droplet, Home, Edit2, Save, Building2, Nfc, HandPlatter, X } from 'lucide-react';
 import { router, useForm, usePage } from '@inertiajs/react';
+import Logistics from '@/Components/Logistics';
 
-export default function Welcome({affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp  }) {
+export default function Welcome({affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp, prepositionedResourcesProp, availableResourcesProp})  {
   const [selectedLGU, setSelectedLGU] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
@@ -34,7 +35,8 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
     'medical-services',
     'other-medical-services',
     'hospital-census',
-    'logistical-support'
+    'logistical-support',
+    'status-legend'
   ];
 
   // Auto-scroll through sections every 10 seconds
@@ -43,7 +45,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
     
     const interval = setInterval(() => {
       setCurrentSection(prev => (prev + 1) % sections.length);
-    }, 10000);
+    }, 20000);
 
     return () => clearInterval(interval);
   }, [editMode, sections.length]);
@@ -132,6 +134,9 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
 
   const [medicalServicesProvided, setMedicalServicesProvided] = useState({...medicalServicesProvidedProp} );
   const [bloodData, setBloodData] = useState(bloodDataProp);
+
+  const [prepostionedResources, setPrepostionedResources] = useState(prepositionedResourcesProp);
+  const [availableResources, setAvailableResources] = useState(availableResourcesProp);
   const [mobilizedResources, setMobilizedResources] = useState(mobilizedResourcesProp);
 
   const hrhTotal = useMemo(() => {
@@ -148,9 +153,17 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
   
   const excludedKeys = ['id', 'created_at', 'updated_at'];
 
-  const resourcesTotal = Object.entries(mobilizedResources)
+  const mobilizedResourcesTotal = Object.entries(mobilizedResources)
     .filter(([key]) => !excludedKeys.includes(key)) // skip unwanted keys
     .reduce((sum, [, val]) => sum + (Number(val) || 0), 0);
+
+  const availableResourcesTotal = Object.entries(availableResources)
+  .filter(([key]) => !excludedKeys.includes(key)) // skip unwanted keys
+  .reduce((sum, [, val]) => sum + (Number(val) || 0), 0);
+
+  const prepositionedResourcesTotal = Object.entries(prepostionedResources)
+  .filter(([key]) => !excludedKeys.includes(key)) // skip unwanted keys
+  .reduce((sum, [, val]) => sum + (Number(val) || 0), 0);
 
   const medicalServices = {
     medicalPublicHealth: {
@@ -288,6 +301,8 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         mobilizedResources: mobilizedResources,
         hospitalCensus: hospitalCensus,
         patientCatered: patientCatered,
+        prepositionedResources: prepostionedResources,
+        availableResources: availableResources,
       },{preserveScroll:true});
 
       setEditMode(false);
@@ -1389,87 +1404,17 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
           </h2>
         </div>
 
-        <div className="p-6">
-          <div className="mb-6">
-            <h3 className="text-teal-400 font-bold text-lg mb-4">MOBILIZED RESOURCES</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Medical and Public Health */}
-              <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-lg p-6 shadow-lg">
-                <h4 className="text-white font-bold text-sm mb-2">Medical and Public Health</h4>
-                {editMode ? (
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={mobilizedResources.medical_public_health}
-                    onChange={(e) => setMobilizedResources(prev => ({ ...prev, medical_public_health: parseFloat(e.target.value) || 0 }))}
-                    className="bg-green-700 text-white text-3xl font-bold px-2 py-1 rounded w-full"
-                  />
-                ) : (
-                  <div className="text-white text-4xl font-bold">{mobilizedResources.medical_public_health.toLocaleString('en-PH', { minimumFractionDigits: 2 })} Php</div>
-                )}
-              </div>
-
-              {/* Nutrition in Emergency */}
-              <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-lg p-6 shadow-lg">
-                <h4 className="text-white font-bold text-sm mb-2">Nutrition in Emergency</h4>
-                {editMode ? (
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={mobilizedResources.nutrition_emergency}
-                    onChange={(e) => setMobilizedResources(prev => ({ ...prev, nutrition_emergency: parseFloat(e.target.value) || 0 }))}
-                    className="bg-green-700 text-white text-3xl font-bold px-2 py-1 rounded w-full"
-                  />
-                ) : (
-                  <div className="text-white text-4xl font-bold">{mobilizedResources.nutrition_emergency.toLocaleString('en-PH', { minimumFractionDigits: 2 })} Php</div>
-                )}
-              </div>
-
-              {/* Water, Sanitation and Hygiene */}
-              <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-lg p-6 shadow-lg">
-                <h4 className="text-white font-bold text-sm mb-2">Water, Sanitation and Hygiene</h4>
-                {editMode ? (
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={mobilizedResources.water_sanitation_hygiene}
-                    onChange={(e) => setMobilizedResources(prev => ({ ...prev, water_sanitation_hygiene: parseFloat(e.target.value) || 0 }))}
-                    className="bg-green-700 text-white text-3xl font-bold px-2 py-1 rounded w-full"
-                  />
-                ) : (
-                  <div className="text-white text-4xl font-bold">{mobilizedResources.water_sanitation_hygiene.toLocaleString('en-PH', { minimumFractionDigits: 2 })} Php</div>
-                )}
-              </div>
-
-              {/* Mental Health and Psychosocial Support */}
-              <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-lg p-6 shadow-lg">
-                <h4 className="text-white font-bold text-sm mb-2">Mental Health and Psychosocial Support</h4>
-                {editMode ? (
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={mobilizedResources.mental_health_psychosocial_support}
-                    onChange={(e) => setMobilizedResources(prev => ({ ...prev, mental_health_psychosocial_support: parseFloat(e.target.value) || 0 }))}
-                    className="bg-green-700 text-white text-3xl font-bold px-2 py-1 rounded w-full"
-                  />
-                ) : (
-                  <div className="text-white text-4xl font-bold">{mobilizedResources.mental_health_psychosocial_support > 0 ? mobilizedResources.mentalHealth.toLocaleString('en-PH', { minimumFractionDigits: 2 }) + ' Php' : '_________ Php'}</div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-slate-700 rounded-lg p-4 border border-slate-600">
-            <div className="flex justify-between items-center">
-              <span className="text-white font-bold text-lg">Total Mobilized Resources:</span>
-              <span className="text-teal-400 text-3xl font-bold">{resourcesTotal > 0 ? resourcesTotal.toLocaleString('en-PH', { minimumFractionDigits: 2 }) + ' Php' : '_________ Php'}</span>
-            </div>
-          </div>
-        </div>
+        <Logistics editMode={editMode} headTitle={"PREPOSITIONED RESOURCES"} dataResource={prepostionedResources} setDataResource={setPrepostionedResources} resourcesTotal={prepositionedResourcesTotal} />
+        <Logistics editMode={editMode} headTitle={"AVAILABLE RESOURCES"} dataResource={availableResources} setDataResource={setAvailableResources} resourcesTotal={availableResourcesTotal} />
+        <Logistics editMode={editMode} headTitle={"MOBILIZE RESOURCES"} dataResource={mobilizedResources} setDataResource={setMobilizedResources} resourcesTotal={mobilizedResourcesTotal} />
+      
       </div>
 
       {/* Legend */}
-      <div className="mt-6 bg-slate-800 rounded-lg p-4 border border-slate-700">
+      <div 
+        ref={el => sectionRefs.current[8] = el}
+        id="status-legend"
+        className="mt-6 bg-slate-800 rounded-lg p-4 border border-slate-700">
         <h3 className="text-slate-300 text-sm font-semibold mb-3">Status Legend</h3>
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center gap-2">

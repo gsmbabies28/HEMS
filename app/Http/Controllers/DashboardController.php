@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AffectedPopulation;
+use App\Models\AvailableResources;
 use App\Models\Casualty;
 use App\Models\DeployedHRH;
 use App\Models\HealthClusterTeam;
@@ -12,6 +13,7 @@ use App\Models\MedicalServicesProvided;
 use App\Models\MobilizedResources;
 use App\Models\OtherMedicalServicesProvided;
 use App\Models\PatientCatered;
+use App\Models\PrepositionResources;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -30,7 +32,9 @@ class DashboardController extends Controller
         $mobilizedResources = MobilizedResources::first();
         $hospitalCensus = HospitalCensus::all();
         $patientCatered = PatientCatered::first();
-
+        $prepositionedResources = PrepositionResources::first(); // Placeholder for future implementation
+        $availableResources = AvailableResources::first(); // Placeholder for future implementation
+        
         return Inertia::render('Welcome', [
             'affectedDataProp' => $affectedData,
             'casualtiesProp' => $casualties,
@@ -42,6 +46,8 @@ class DashboardController extends Controller
             'mobilizedResourcesProp' => $mobilizedResources,
             'hospitalCensusProp' => $hospitalCensus,
             'patientCateredProp' => $patientCatered,
+            'prepositionedResourcesProp' => $prepositionedResources,
+            'availableResourcesProp' => $availableResources,
         ]);
     }
 
@@ -59,6 +65,8 @@ class DashboardController extends Controller
             'mobilizedResources' => 'required|array',
             'hospitalCensus' => 'required|array',
             'patientCatered' => 'required|array',
+            'prepositionedResources' => 'required|array',
+            'availableResources' => 'required|array',
         ]);
 
         // Use the helper for each model group
@@ -67,6 +75,8 @@ class DashboardController extends Controller
         $this->updateRecord(DeployedHRH::class, $validatedData['deployedHRH']);
         $this->updateRecord(HealthClusterTeam::class, $validatedData['healthClusterTeams']);
         $this->updateRecord(MedicalServicesProvided::class, $validatedData['medicalServicesProvided']);
+        $this->updateRecord(PrepositionResources::class, $validatedData['prepositionedResources']);
+        $this->updateRecord(AvailableResources::class, $validatedData['availableResources']);
         $this->updateRecord(MobilizedResources::class, $validatedData['mobilizedResources']);
         $this->updateRecord(PatientCatered::class, $validatedData['patientCatered']);
         $this->updateMultipleRecords(HealthFacility::class, $validatedData['healthFacilities']);
