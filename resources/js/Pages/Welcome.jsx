@@ -1,18 +1,15 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { AlertTriangle, Users, Heart, Activity, Zap, Droplet, Home, Edit2, Save, Building2 } from 'lucide-react';
 import { router, useForm, usePage } from '@inertiajs/react';
 
 export default function Welcome({affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp}) {
-  console.log(mobilizedResourcesProp);
   const [selectedLGU, setSelectedLGU] = useState(null);
   const [editMode, setEditMode] = useState(false);
+  const [currentSection, setCurrentSection] = useState(0);
   
   const [affectedData, setAffectedData] = useState(...affectedDataProp);
-
   const [casualties, setCasualties] = useState(...casualtiesProp);
-
   const [healthFacilities, setHealthFacilities] = useState(healthFacilitiesProp.length ? healthFacilitiesProp : [] );
-
   const [deployedHRH, setDeployedHRH] = useState(
     deployedHRHProp ??
     {
@@ -24,6 +21,61 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
     }
   );
   
+  console.log(hospitalCensusProp);
+  // Section references for scrolling
+  const sectionRefs = useRef([]);
+  
+  // Define sections for cycling
+  const sections = [
+    'top-stats',
+    'lifelines',
+    'health-facilities',
+    'cluster-teams',
+    'medical-services',
+    'other-medical-services',
+    'hospital-census',
+    'logistical-support'
+  ];
+
+  // Auto-scroll through sections every 10 seconds
+  useEffect(() => {
+    if (editMode) return; // Don't auto-scroll when in edit mode
+    
+    const interval = setInterval(() => {
+      setCurrentSection(prev => (prev + 1) % sections.length);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [editMode, sections.length]);
+
+  // Scroll to current section when it changes
+  useEffect(() => {
+    if (sectionRefs.current[currentSection]) {
+      sectionRefs.current[currentSection].scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  }, [currentSection]);
+
+  // Add section indicator dots
+  const SectionIndicator = () => (
+    <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-20 flex flex-col gap-2">
+      {sections.map((_, index) => (
+        <button
+          key={index}
+          onClick={() => setCurrentSection(index)}
+          className={`w-3 h-3 rounded-full transition-all ${
+            currentSection === index 
+              ? 'bg-white scale-125' 
+              : 'bg-slate-500 hover:bg-slate-400'
+          }`}
+          title={`Go to section ${index + 1}`}
+        />
+      ))}
+    </div>
+  );
+
   const handleChange = (key, value) => {
     setDeployedHRH(prev => ({
       ...prev,
@@ -48,60 +100,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
     { category: 'Mental Health and Psychosocial Support', teams: healthClusterTeamsProp.mental_health_psychosocial_support ?? 0, color: 'from-green-500 to-green-600' }
   ]);
 
-  const [hospitalCensus, setHospitalCensus] = useState(hospitalCensusProp ?? [
-    {
-      hospital_name: 'VSMMC',
-      under_10: 5,
-      age_10_20: 23,
-      age_21_59: 40,
-      age_60_above: 23,
-      male: 41,
-      female: 50,
-      admitted: 46,
-      discharged: 44,
-      died: 1,
-      operated: 27
-    },
-    {
-      hospital_name: 'UCMED',
-      under_10: 1,
-      age_10_20: 3,
-      age_21_59: 7,
-      age_60_above: 3,
-      male: 7,
-      female: 7,
-      admitted: 14,
-      discharged: 0,
-      died: 0,
-      operated: 7
-    },
-    {
-      hospital_name: 'CPH (Balamban)',
-      under_10: 0,
-      age_10_20: 0,
-      age_21_59: 2,
-      age_60_above: 1,
-      male: 1,
-      female: 2,
-      admitted: 0,
-      discharged: 0,
-      died: 3,
-      operated: 0
-    },
-    {
-      hospital_name: 'Miller Hospital',
-      under_10: 0,
-      age_10_20: 0,
-      age_21_59: 1,
-      age_60_above: 0,
-      male: 1,
-      female: 0,
-      admitted: 1,
-      discharged: 0,
-      died: 0,
-      operated: 0
-    }
-  ]);
+  const [hospitalCensus, setHospitalCensus] = useState(hospitalCensusProp);
 
    const censusTotals = useMemo(() => {
     return hospitalCensus.reduce((acc, hospital) => ({
@@ -132,10 +131,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
   }, [hospitalCensus]);
 
   const [medicalServicesProvided, setMedicalServicesProvided] = useState({...medicalServicesProvidedProp} );
-
-
   const [bloodData, setBloodData] = useState(bloodDataProp);
-
   const [mobilizedResources, setMobilizedResources] = useState(mobilizedResourcesProp);
 
   const hrhTotal = useMemo(() => {
@@ -283,13 +279,19 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         medicalServicesProvided: medicalServicesProvided,
         bloodData: bloodData,
         mobilizedResources: mobilizedResources,
+        hospitalCensus: hospitalCensus,
       },{preserveScroll:true});
+
+      setEditMode(false);
     };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+      {/* Section Indicator */}
+      <SectionIndicator />
+
       {/* Header */}
-      <div className="mb-8 flex justify-between items-start sticky top-0 bg-slate-900/70 backdrop-blur-md p-4 rounded-lg shadow-lg z-10">
+      <div className="mb-8 flex justify-between items-start bg-slate-900/70 backdrop-blur-md p-4 rounded-lg shadow-lg z-10">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <AlertTriangle className="text-red-500" size={32} />
@@ -297,19 +299,30 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
           </div>
           <p className="text-slate-400 text-sm">Real-time monitoring and response coordination</p>
         </div>
-        <button
-          onClick={() => setEditMode(!editMode)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+      
+      </div>
+      <div className="fixed top-4 right-4 z-20">
+          <button
+          onClick={() => {
+            if (!editMode) {
+              setEditMode(true);
+            }
+          }}
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all shadow-lg ${
             editMode 
               ? 'bg-green-600 hover:bg-green-700 text-white' 
               : 'bg-blue-600 hover:bg-blue-700 text-white'
           }`}
         >
           {editMode ? (
-            <div onClick={handleSubmit} className="flex items-center gap-2">
+            <div 
+              onClick={handleSubmit} 
+              className="flex items-center gap-2"
+            >
               <Save size={18} />
               Save Changes
             </div>
+            
           ) : (
             <>
               <Edit2 size={18} />
@@ -318,9 +331,12 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
           )}
         </button>
       </div>
-
       {/* Top Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div 
+        ref={el => sectionRefs.current[0] = el}
+        id="top-stats"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6 transition-opacity duration-500"
+      >
         {/* Affected Population Card */}
         <div className="lg:col-span-2 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-6 shadow-xl">
           <div className="flex items-start justify-between mb-4">
@@ -468,7 +484,11 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       </div>
       
       {/* Lifelines Status */}
-      <div className="bg-slate-800 mb-6 rounded-lg shadow-xl border border-slate-700 overflow-hidden">
+      <div 
+        ref={el => sectionRefs.current[1] = el}
+        id="lifelines"
+        className="bg-slate-800 mb-6 rounded-lg shadow-xl border border-slate-700 overflow-hidden transition-opacity duration-500"
+      >
         <div className="bg-gradient-to-r from-teal-700 to-slate-800 p-4 border-b border-slate-600">
           <h2 className="text-white text-lg font-bold flex items-center gap-2">
             <Activity className="text-green-400" size={24} />
@@ -563,7 +583,11 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       </div>
 
       {/* Damaged Health Facilities */}
-      <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6">
+      <div 
+        ref={el => sectionRefs.current[2] = el}
+        id="health-facilities"
+        className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6 transition-opacity duration-500"
+      >
         <div className="bg-gradient-to-r from-orange-700 to-orange-800 p-4 border-b border-orange-600">
           <h2 className="text-white text-lg font-bold flex items-center gap-2">
             <Activity className="text-orange-300" size={24} />
@@ -669,7 +693,11 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       </div>
 
       {/* Health Cluster Teams Deployed */}
-      <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6">
+      <div 
+        ref={el => sectionRefs.current[3] = el}
+        id="cluster-teams"
+        className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6 transition-opacity duration-500"
+      >
         <div className="bg-gradient-to-r from-emerald-700 to-emerald-800 p-4 border-b border-emerald-600">
           <h2 className="text-white text-lg font-bold flex items-center gap-2">
             <Users className="text-emerald-300" size={24} />
@@ -710,7 +738,11 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       </div>
 
       {/* Medical Services Provided */}
-      <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6">
+      <div 
+        ref={el => sectionRefs.current[4] = el}
+        id="medical-services"
+        className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6 transition-opacity duration-500"
+      >
         <div className="bg-gradient-to-r from-green-700 to-green-800 p-4 border-b border-green-600">
           <h2 className="text-white text-lg font-bold flex items-center gap-2">
             <Heart className="text-green-300" size={24} />
@@ -846,7 +878,11 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       </div>
 
       {/* Other Medical Services Provided */}
-      <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6">
+      <div 
+        ref={el => sectionRefs.current[5] = el}
+        id="other-medical-services"
+        className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6 transition-opacity duration-500"
+      >
         <div className="bg-gradient-to-r from-emerald-700 to-emerald-800 p-4 border-b border-emerald-600">
           <h2 className="text-white text-lg font-bold flex items-center gap-2">
             <Heart className="text-emerald-300" size={24} />
@@ -864,6 +900,12 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
                   </th>
                   <th  className="border-2 border-slate-600 bg-green-100 px-4 py-3 text-center">
                     <span className="text-slate-800 font-bold text-sm">Number of blood units</span>
+                  </th>
+                  <th  className="border-2 border-slate-600 bg-green-100 px-4 py-3 text-center">
+                    <span className="text-slate-800 font-bold text-sm">Human Milk Donations</span>
+                  </th>
+                  <th  className="border-2 border-slate-600 bg-green-100 px-4 py-3 text-center">
+                    <span className="text-slate-800 font-bold text-sm">Vaccines</span>
                   </th>
                   <th className="border-2 border-slate-600 bg-green-100 px-4 py-3 text-center align-middle">
                     <span className="text-slate-800 font-bold text-sm">Recipient</span>
@@ -897,6 +939,41 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
                       }
                       </td>
                       <td className="border-2 border-slate-600 bg-slate-750 px-4 py-3">
+                        {editMode ? (
+                          <input
+                            type="number"
+                            value={data.human_milk}
+                            onChange={(e) => {
+                              const updatedBloodData = [...bloodData];
+                              updatedBloodData[index].human_milk = parseInt(e.target.value) || 0;
+                              setBloodData(updatedBloodData)
+                            }}
+                            className="bg-slate-700 text-slate-200 text-2xl font-bold px-2 py-1 rounded w-24 text-right"
+                          />
+                        ) : (
+                          <span className="text-slate-200 text-2xl">{data.human_milk}</span>
+                        )  
+                      }
+                      </td>
+                      <td className="border-2 border-slate-600 bg-slate-750 px-4 py-3">
+                        {editMode ? (
+                          <input
+                            type="number"
+                            value={data.vaccines}
+                            onChange={(e) => {
+                              const updatedBloodData = [...bloodData];
+                              updatedBloodData[index].vaccines = parseInt(e.target.value) || 0;
+                              setBloodData(updatedBloodData)
+                            }}
+                            className="bg-slate-700 text-slate-200 text-2xl font-bold px-2 py-1 rounded w-24 text-right"
+                          />
+                        ) : (
+                          <span className="text-slate-200 text-2xl">{data.vaccines}</span>
+                        )  
+                      }
+                      </td>
+                      
+                      <td className="border-2 border-slate-600 bg-slate-750 px-4 py-3">
                         <span className="text-slate-300 text-xs">{data.recipient}</span>
                       </td>
                     </tr>
@@ -909,7 +986,11 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       </div>
 
       {/* Hospital Census Section */}
-      <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6">
+      <div 
+        ref={el => sectionRefs.current[6] = el}
+        id="hospital-census"
+        className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6 transition-opacity duration-500"
+      >
         <div className="bg-gradient-to-r from-green-700 to-green-800 p-4 border-b border-green-600">
           <h2 className="text-white text-lg font-bold flex items-center gap-2">
             <Building2 className="text-green-300" size={24} />
@@ -1166,7 +1247,11 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       </div>
 
       {/* Logistical Support */}
-      <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6">
+      <div 
+        ref={el => sectionRefs.current[7] = el}
+        id="logistical-support"
+        className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6 transition-opacity duration-500"
+      >
         <div className="bg-gradient-to-r from-teal-700 to-teal-800 p-4 border-b border-teal-600">
           <h2 className="text-white text-lg font-bold flex items-center gap-2">
             <Activity className="text-teal-300" size={24} />

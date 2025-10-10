@@ -10,5 +10,7 @@ class OtherMedicalServicesProvided extends Model
     protected $fillable = [
         'no_of_blood_units',
         'recipient',
+        'human_milk',
+        'vaccines',
     ];
 }

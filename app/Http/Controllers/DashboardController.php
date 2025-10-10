@@ -7,6 +7,7 @@ use App\Models\Casualty;
 use App\Models\DeployedHRH;
 use App\Models\HealthClusterTeam;
 use App\Models\HealthFacility;
+use App\Models\HospitalCensus;
 use App\Models\MedicalServicesProvided;
 use App\Models\MobilizedResources;
 use App\Models\OtherMedicalServicesProvided;
@@ -26,6 +27,7 @@ class DashboardController extends Controller
         $medicalServicesProvided = MedicalServicesProvided::first();
         $bloodDataProp = OtherMedicalServicesProvided::all();
         $mobilizedResources = MobilizedResources::first();
+        $hospitalCensus = HospitalCensus::all();
 
         return Inertia::render('Welcome', [
             'affectedDataProp' => $affectedData,
@@ -36,6 +38,7 @@ class DashboardController extends Controller
             'medicalServicesProvidedProp' => $medicalServicesProvided,
             'bloodDataProp' => $bloodDataProp,
             'mobilizedResourcesProp' => $mobilizedResources,
+            'hospitalCensusProp' => $hospitalCensus,
         ]);
     }
 
@@ -51,6 +54,7 @@ class DashboardController extends Controller
             'medicalServicesProvided' => 'required|array',
             'bloodData' => 'required|array',
             'mobilizedResources' => 'required|array',
+            'hospitalCensus' => 'required|array',
         ]);
 
         // Use the helper for each model group
@@ -62,6 +66,7 @@ class DashboardController extends Controller
         $this->updateRecord(MobilizedResources::class, $validatedData['mobilizedResources']);
         $this->updateMultipleRecords(HealthFacility::class, $validatedData['healthFacilities']);
         $this->updateMultipleRecords(OtherMedicalServicesProvided::class, $validatedData['bloodData']);
+        $this->updateMultipleRecords(HospitalCensus::class, $validatedData['hospitalCensus']);
 
         // return back()->with('success', 'Data updated successfully.');
     }
