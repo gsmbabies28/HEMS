@@ -15,6 +15,7 @@ use App\Models\OtherMedicalServicesProvided;
 use App\Models\PatientCatered;
 use App\Models\PrepositionResources;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -34,6 +35,8 @@ class DashboardController extends Controller
         $patientCatered = PatientCatered::first();
         $prepositionedResources = PrepositionResources::first(); // Placeholder for future implementation
         $availableResources = AvailableResources::first(); // Placeholder for future implementation
+        $json = Storage::disk('local')->get('data/header.json');
+        $headerTitle = json_decode($json, true);
         
         return Inertia::render('Welcome', [
             'affectedDataProp' => $affectedData,
@@ -48,6 +51,7 @@ class DashboardController extends Controller
             'patientCateredProp' => $patientCatered,
             'prepositionedResourcesProp' => $prepositionedResources,
             'availableResourcesProp' => $availableResources,
+            'headerTitleProp' => $headerTitle,
         ]);
     }
 
@@ -83,6 +87,12 @@ class DashboardController extends Controller
         $this->updateMultipleRecords(OtherMedicalServicesProvided::class, $validatedData['bloodData']);
         $this->updateMultipleRecords(HospitalCensus::class, $validatedData['hospitalCensus']);
 
+        if ($request->has('cardTitle')) {
+            $headerData = $request->input('cardTitle');
+            $this->updateHeader($headerData);
+        }
+
+
     }
 
     /**
@@ -117,6 +127,11 @@ class DashboardController extends Controller
                 $modelClass::create($data);
             }
         }
+    }
+
+    public function updateHeader(array $data)
+    {
+        Storage::disk('local')->put('data/header.json', json_encode($data, JSON_PRETTY_PRINT));
     }
     
 }

@@ -2,11 +2,16 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { AlertTriangle, Users, Heart, Activity, Zap, Droplet, Home, Edit2, Save, Building2, Nfc, HandPlatter, X } from 'lucide-react';
 import { router, useForm, usePage } from '@inertiajs/react';
 import Logistics from '@/Components/Logistics';
+import ToggleSwitch from '@/Components/ToggleSwitch';
+import {sections, medicalServices} from '@/utils/utils';
 
-export default function Welcome({affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp, prepositionedResourcesProp, availableResourcesProp})  {
+export default function Welcome({affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp, prepositionedResourcesProp, availableResourcesProp, headerTitleProp})  {
   const [selectedLGU, setSelectedLGU] = useState(null);
   const [editMode, setEditMode] = useState(false);
+  const [sliderOff, setSliderOff] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
+
+  console.log(headerTitleProp);
   
   const [affectedData, setAffectedData] = useState(...affectedDataProp);
   const [casualties, setCasualties] = useState(...casualtiesProp);
@@ -25,30 +30,20 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
 
   // Section references for scrolling
   const sectionRefs = useRef([]);
-  
-  // Define sections for cycling
-  const sections = [
-    'top-stats',
-    'lifelines',
-    'health-facilities',
-    'cluster-teams',
-    'medical-services',
-    'other-medical-services',
-    'hospital-census',
-    'logistical-support',
-    'status-legend'
-  ];
+
+  const [cardTitle, setCardTitle] = useState(headerTitleProp);
+  const lifelinesData = cardTitle?.lgu_lifelines;
 
   // Auto-scroll through sections every 10 seconds
   useEffect(() => {
-    if (editMode) return; // Don't auto-scroll when in edit mode
+    if (editMode || sliderOff) return; // Don't auto-scroll when in edit mode
     
     const interval = setInterval(() => {
       setCurrentSection(prev => (prev + 1) % sections.length);
     }, 20000);
 
     return () => clearInterval(interval);
-  }, [editMode, sections.length]);
+  }, [editMode, sections.length, sliderOff, ]);
 
   // Scroll to current section when it changes
   useEffect(() => {
@@ -75,7 +70,8 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
           title={`Go to section ${index + 1}`}
         />
       ))}
-    </div>
+      <ToggleSwitch setIsOff={setSliderOff} isOff={sliderOff} />
+    </div>    
   );
 
   const handleChange = (key, value) => {
@@ -165,108 +161,6 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
   .filter(([key]) => !excludedKeys.includes(key)) // skip unwanted keys
   .reduce((sum, [, val]) => sum + (Number(val) || 0), 0);
 
-  const medicalServices = {
-    medicalPublicHealth: {
-      title: 'Medical and Public Health',
-      consultations: [
-        'FRACTURES',
-        'WOUNDS',
-        'HBP',
-        'PSYCHOLOGICAL CONDITIONS',
-        'MUSCULOSKELETAL (pain involving muscles, bones, or joints)'
-      ],
-      services: [
-        'Provision of medicines',
-        'BP Monitoring',
-        'Patient Transport',
-        'Hospital Referral'
-      ]
-    },
-    nutrition: {
-      title: 'Nutrition in Emergencies',
-      services: [
-        'Distribution of supplemental food to pregnant, lactating mother, newborn and children',
-        'Provision of micronutrient',
-        'Nutritional assessment and health education'
-      ]
-    },
-    wash: {
-      title: 'Water, Sanitation and Hygiene',
-      services: [
-        'Provision of aquatabs and water container',
-        'Ensure safe drinking water',
-        'Distribution of hygiene kits',
-        'Conduct of hygiene education'
-      ]
-    },
-    mentalHealth: {
-      title: 'Mental Health and Psychosocial Support',
-      services: [
-        'Provision of Psychological First Aid',
-        'Mental Health Counselling'
-      ]
-    }
-  };
-
-  const lifelinesData = [
-    {
-      lgu: 'Bago City',
-      power: 'Fully Functional',
-      water: 'Fully Functional',
-      roads: 'Partly Functional (some areas still have difficulty in water access)',
-      communications: 'Fully Functional',
-      status: 'warning'
-    },
-    {
-      lgu: 'Bonbon',
-      power: 'Fully Functional',
-      water: 'Fully Functional',
-      roads: 'Partly Functional (some areas still have difficulty in water access; in case power supply occur, municipality will have no access to water)',
-      communications: 'Fully Functional',
-      status: 'warning'
-    },
-    {
-      lgu: 'Daanbantayan',
-      power: 'Fully Functional',
-      water: 'Fully Functional',
-      roads: 'Partly Functional (some water sources still needs repair)',
-      communications: 'Fully Functional',
-      status: 'warning'
-    },
-    {
-      lgu: 'Medellin',
-      power: 'Fully Functional',
-      water: 'Fully Functional',
-      roads: 'Fully Functional',
-      communications: 'Fully Functional',
-      status: 'good'
-    },
-    {
-      lgu: 'San Remigio',
-      power: 'Fully Functional',
-      water: 'Partly Functional (96% Energized)',
-      roads: 'Partly Functional (limited access especially to mountainous barangay)',
-      communications: 'Fully Functional',
-      status: 'warning'
-    },
-    {
-      lgu: 'Tabogon',
-      power: 'Fully Functional',
-      water: 'Fully Functional',
-      roads: 'Totally non-functional (still ongoing repair of water sources and pipes)',
-      communications: 'Fully Functional',
-      status: 'critical'
-    },
-    {
-      lgu: 'Tabuelan',
-      power: 'Fully Functional',
-      water: 'Fully Functional',
-      roads: 'Partly Functional (7 barangays have no access to water)',
-      communications: 'Fully Functional',
-      status: 'warning'
-    }
-  ];
-
   const getStatusColor = (status) => {
     switch(status) {
       case 'good': return 'bg-green-500';
@@ -276,34 +170,47 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
     }
   };
 
-    
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      const convertHealthClusterData = Object.fromEntries(
-        healthClusterTeams.map(item => [
-          item.category
-            .toLowerCase()
-            .replace(/\s*and\s*/gi, ' ') // remove "and" + spaces
-            .replace(/\s*in\s*/g, ' ')
-            .replace(/,/g, '')
-            .replace(/\s/g, '_'),          // remove commas if any                 // clean up ends
-          item.teams
-        ])
-      );
-      router.put(route('hems.update'), {
-        affectedData:affectedData,
-        casualties:casualties,
-        healthFacilities:healthFacilities,
-        deployedHRH:deployedHRH,
-        healthClusterTeams: { id:healthClusterTeamsProp.id , ...convertHealthClusterData},
-        medicalServicesProvided: medicalServicesProvided,
-        bloodData: bloodData,
-        mobilizedResources: mobilizedResources,
-        hospitalCensus: hospitalCensus,
-        patientCatered: patientCatered,
-        prepositionedResources: prepostionedResources,
-        availableResources: availableResources,
-      },{preserveScroll:true});
+  const handleLguChange = (key, value, index) => {
+    const updatedLifelines = [...cardTitle.lgu_lifelines];
+    updatedLifelines[index] = {
+      ...updatedLifelines[index],
+      [key]: value,
+    };
+
+    setCardTitle((prev) => ({
+      ...prev,
+      lgu_lifelines: updatedLifelines,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const convertHealthClusterData = Object.fromEntries(
+      healthClusterTeams.map(item => [
+        item.category
+          .toLowerCase()
+          .replace(/\s*and\s*/gi, ' ') // remove "and" + spaces
+          .replace(/\s*in\s*/g, ' ')
+          .replace(/,/g, '')
+          .replace(/\s/g, '_'),          // remove commas if any                 // clean up ends
+        item.teams
+      ])
+    );
+    router.put(route('hems.update'), {
+      affectedData:affectedData,
+      casualties:casualties,
+      healthFacilities:healthFacilities,
+      deployedHRH:deployedHRH,
+      healthClusterTeams: { id:healthClusterTeamsProp.id , ...convertHealthClusterData},
+      medicalServicesProvided: medicalServicesProvided,
+      bloodData: bloodData,
+      mobilizedResources: mobilizedResources,
+      hospitalCensus: hospitalCensus,
+      patientCatered: patientCatered,
+      prepositionedResources: prepostionedResources,
+      availableResources: availableResources,
+      cardTitle: cardTitle
+    },{preserveScroll:true});
 
       setEditMode(false);
     };
@@ -325,15 +232,15 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
       
       </div>
       <div className="fixed bottom-6 right-6 z-50 flex gap-2">
-        {editMode && (
-          <button
-            onClick={() => setEditMode(false)}
-            className="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all shadow-lg bg-red-600 hover:bg-red-700 text-white"
-          >
-            <X size={18} />
-            Cancel
-          </button>
-        )}
+       {/*{editMode && (
+            <button
+              onClick={() => router.get("/")}
+              className="flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all shadow-lg bg-red-600 hover:bg-red-700 text-white"
+            >
+              <X size={18} />
+              Cancel
+            </button>
+        )}*/}
         
         <button
           onClick={() => {
@@ -374,8 +281,17 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         <div className="lg:col-span-1 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-6 shadow-xl">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-blue-100 text-sm font-semibold mb-1">AFFECTED AND DISPLACED</h3>
-              <p className="text-blue-200 text-xs">POPULATION</p>
+              {editMode ? (
+                <input
+                  type="string"
+                  value={cardTitle.affected_displaced_header}
+                  onChange={(e) => setCardTitle(prev => ({ ...prev, affected_displaced_header: e.target.value}))}
+                  className="bg-blue-800 text-white text-sm font-bold px-2 py-1 rounded text-right"
+                />
+              ) : (
+                <h3 className="text-blue-100 text-md font-semibold mb-1">{cardTitle?.affected_displaced_header}</h3>
+              )}
+              
             </div>
             <Users className="text-blue-200" size={28} />
           </div>
@@ -427,7 +343,16 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         <div className="lg:col-span-1 bg-gradient-to-br from-red-600 to-red-700 rounded-lg p-6 shadow-xl">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-red-100 text-sm font-semibold mb-1">CASUALTIES</h3>
+              {editMode ? (
+                <input
+                  type="text"
+                  value={cardTitle.casualties_header}
+                  onChange={(e) => setCardTitle(prev => ({ ...prev, casualties_header: e.target.value}))}
+                  className="bg-red-800 text-white text-sm font-bold px-2 py-1 rounded w-full text-right"
+                />
+              ) : (
+                <h3 className="text-red-100 text-md font-semibold mb-1">{cardTitle?.casualties_header}</h3>
+              )}              
               <p className="text-red-200 text-xs">Reported incidents</p>
             </div>
             <Heart className="text-red-200" size={28} />
@@ -467,7 +392,16 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         <div className="bg-slate-400 rounded-lg p-6 shadow-xl border border-slate-700">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-black text-sm font-semibold mb-1">PATIENT CATERED</h3>
+              {editMode ? (
+                <input
+                  type="text"
+                  value={cardTitle.patient_catered_header}
+                  onChange={(e) => setCardTitle(prev => ({ ...prev, patient_catered_header: e.target.value}))}
+                  className="bg-slate-800 text-white text-sm font-bold px-2 py-1 rounded w-full text-right"
+                />
+              ) : (
+                <h3 className="text-slate-100 text-md font-semibold mb-1">{cardTitle?.patient_catered_header}</h3>
+              )}
             </div>
             <HandPlatter className="text-black" size={28} />
           </div>
@@ -487,31 +421,20 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
           </div>
         </div>
 
-        {/* Quick Status */}
-        <div className="bg-slate-800 rounded-lg p-6 shadow-xl border border-slate-700">
-          <h3 className="text-slate-300 text-sm font-semibold mb-4">QUICK STATUS</h3>
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span className="text-slate-400 text-xs">1 LGU Operational</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-              <span className="text-slate-400 text-xs">5 LGUs Partial</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span className="text-slate-400 text-xs">1 LGU Critical</span>
-            </div>
-          </div>
-        </div>
-
         {/* Deployed Human Resources */}
         <div className="bg-gradient-to-br from-teal-600 to-teal-700 rounded-lg p-6 shadow-xl">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-teal-100 text-sm font-semibold mb-1">DEPLOYED HUMAN</h3>
-              <p className="text-teal-200 text-xs">RESOURCES FOR HEALTH</p>
+               {editMode ? (
+                <input
+                  type="text"
+                  value={cardTitle.deployed_human_resource_header}
+                  onChange={(e) => setCardTitle(prev => ({ ...prev, deployed_human_resource_header: e.target.value}))}
+                  className="bg-teal-800 text-white text-sm font-bold px-2 py-1 rounded w-full text-right"
+                />
+              ) : (
+                <h3 className="text-teal-100 text-md font-semibold mb-1">{cardTitle?.deployed_human_resource_header}</h3>
+              )}
             </div>
             <Activity className="text-teal-200" size={28} />
           </div>
@@ -547,10 +470,19 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         className="bg-slate-800 mb-6 rounded-lg shadow-xl border border-slate-700 overflow-hidden transition-opacity duration-500"
       >
         <div className="bg-gradient-to-r from-teal-700 to-slate-800 p-4 border-b border-slate-600">
-          <h2 className="text-white text-lg font-bold flex items-center gap-2">
-            <Activity className="text-green-400" size={24} />
-            STATUS OF LIFELINES
-          </h2>
+          {editMode ? (
+                <input
+                  type="text"
+                  value={cardTitle.status_lifelines_header}
+                  onChange={(e) => setCardTitle(prev => ({ ...prev, status_lifelines_header: e.target.value}))}
+                  className="bg-teal-800 text-white text-sm font-bold px-2 py-1 rounded w-full text-left"
+                />
+              ) : (
+                <h2 className="text-white text-lg font-bold flex items-center gap-2">
+                  <Activity className="text-green-400" size={24} />
+                  {cardTitle?.status_lifelines_header}
+                </h2>
+              )}          
         </div>
 
         <div className="overflow-x-auto">
@@ -586,50 +518,103 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700">
-              {lifelinesData.map((item, idx) => (
+              {lifelinesData?.map((item, idx) => (
                 <tr 
                   key={idx}
-                  className={`hover:bg-slate-750 transition-colors cursor-pointer ${selectedLGU === idx ? 'bg-slate-750' : ''}`}
-                  onClick={() => setSelectedLGU(selectedLGU === idx ? null : idx)}
+                  className={`hover:bg-slate-750 transition-colors`}
                 >
                   <td className="px-4 py-4">
-                    <span className="text-white font-semibold">{item.lgu}</span>
+                    {editMode ?   
+                      <input
+                        className="text-black px-2 py-1 rounded w-full"
+                        value={item.lgu}
+                        onChange={(e) => handleLguChange('lgu',e.target.value, idx)}
+                      /> :
+                      <span className="text-white font-semibold">{item.lgu}</span>
+                    }
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`text-xs px-3 py-1 rounded-full ${
-                      item.power === 'Fully Functional' 
-                        ? 'bg-green-900 text-green-300 border border-green-700' 
-                        : 'bg-yellow-900 text-yellow-300 border border-yellow-700'
-                    }`}>
+                    {
+                      editMode ?   
+                      <select
+                        className="text-black px-2 py-1 rounded w-full"
+                        value={item.power}
+                        onChange={(e) => handleLguChange('power', e.target.value, idx)}
+                      >
+                        <option value="Fully Functional">Fully Functional</option>
+                        <option value="Partly Functional">Partly Functional</option>
+                        <option value="Non-Functional">Partly Functional</option>
+                      </select> :
+                      <span className={`text-xs px-3 py-1 rounded-full ${
+                        item.power === 'Fully Functional' 
+                          ? 'bg-green-900 text-green-300 border border-green-700' 
+                          : 'bg-yellow-900 text-yellow-300 border border-yellow-700'
+                      }`}>
                       {item.power}
                     </span>
+                    }
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`text-xs px-3 py-1 rounded-full ${
-                      item.water === 'Fully Functional' 
-                        ? 'bg-green-900 text-green-300 border border-green-700' 
-                        : 'bg-yellow-900 text-yellow-300 border border-yellow-700'
-                    }`}>
-                      {item.water}
-                    </span>
+                    {
+                      editMode ?   
+                      <select
+                        className="text-black px-2 py-1 rounded w-full"
+                        value={item.water}
+                        onChange={(e) => handleLguChange('water', e.target.value, idx)}
+                      >
+                        <option value="Fully Functional">Fully Functional</option>
+                        <option value="Partly Functional">Partly Functional</option>
+                        <option value="Non-Functional">Partly Functional</option>
+                      </select> :
+                      <span className={`text-xs px-3 py-1 rounded-full ${
+                        item.water === 'Fully Functional' 
+                          ? 'bg-green-900 text-green-300 border border-green-700' 
+                          : 'bg-yellow-900 text-yellow-300 border border-yellow-700'
+                      }`}>
+                        {item.water}
+                      </span>
+                    }
                   </td>
                   <td className="px-4 py-4">
                     <div className="max-w-md">
+                       {
+                      editMode ?   
+                      <select
+                        className="text-black px-2 py-1 rounded w-full"
+                        value={item.roads}
+                        onChange={(e) => handleLguChange('roads', e.target.value, idx)}
+                      >
+                        <option value="Fully Functional">Fully Functional</option>
+                        <option value="Partly Functional">Partly Functional</option>
+                        <option value="Non-Functional">Partly Functional</option>
+                      </select> :
                       <span className={`text-xs px-3 py-1 rounded-full ${
                         item.roads === 'Fully Functional' 
                           ? 'bg-green-900 text-green-300 border border-green-700' 
-                          : item.roads.includes('Totally non-functional')
+                          : item.roads.includes('Non-functional')
                           ? 'bg-red-900 text-red-300 border border-red-700'
                           : 'bg-yellow-900 text-yellow-300 border border-yellow-700'
                       }`}>
-                        {item.roads.length > 50 ? 'Partly Functional' : item.roads}
+                        {item.roads}
                       </span>
+                    }
                       {selectedLGU === idx && item.roads.length > 50 && (
                         <p className="text-slate-400 text-xs mt-2 italic">{item.roads}</p>
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-4">
+                    {
+                      editMode ?   
+                      <select
+                        className="text-black px-2 py-1 rounded w-full"
+                        value={item.communications}
+                        onChange={(e) => handleLguChange('communications', e.target.value, idx)}
+                      >
+                        <option value="Fully Functional">Fully Functional</option>
+                        <option value="Partly Functional">Partly Functional</option>
+                        <option value="Non-Functional">Partly Functional</option>
+                      </select> :
                     <span className={`text-xs px-3 py-1 rounded-full ${
                       item.communications === 'Fully Functional' 
                         ? 'bg-green-900 text-green-300 border border-green-700' 
@@ -637,9 +622,22 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
                     }`}>
                       {item.communications || 'N/A'}
                     </span>
+                  }
                   </td>
                   <td className="px-4 py-4 text-center">
+                    {
+                      editMode ?   
+                      <select
+                        className="text-black px-2 py-1 rounded w-full"
+                        value={item.status}
+                        onChange={(e) => handleLguChange('status', e.target.value, idx)}
+                      >
+                        <option value="good">Fully Functional</option>
+                        <option value="warning">Partly Functional</option>
+                        <option value="critical">Partly Functional</option>
+                      </select> :
                     <div className={`w-4 h-4 rounded-full ${getStatusColor(item.status)} mx-auto shadow-lg`}></div>
+                  }
                   </td>
                 </tr>
               ))}
@@ -655,10 +653,19 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
         className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden mb-6 transition-opacity duration-500"
       >
         <div className="bg-gradient-to-r from-orange-700F to-orange-800 p-4 border-b border-orange-600">
-          <h2 className="text-white text-lg font-bold flex items-center gap-2">
-            <Activity className="text-orange-300" size={24} />
-            STATUS OF HEALTH FACILITIES
-          </h2>
+          {editMode ? (
+                <input
+                  type="text"
+                  value={cardTitle.status_health_facilities}
+                  onChange={(e) => setCardTitle(prev => ({ ...prev, status_health_facilities: e.target.value}))}
+                  className="bg-slate-600 text-white text-sm font-bold px-2 py-1 rounded w-full text-left"
+                />
+              ) : (
+                <h2 className="text-white text-lg font-bold flex items-center gap-2">
+                  <Activity className="text-green-400" size={24} />
+                  {cardTitle?.status_health_facilities}
+                </h2>
+              )}   
         </div>
 
         <div className="overflow-x-auto">
@@ -676,7 +683,18 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
               {healthFacilities.map((facility, idx) => (
                 <tr key={idx} className="hover:bg-slate-750 transition-colors">
                   <td className="px-4 py-4">
-                    <span className="text-white font-medium text-sm">{facility.facility_type}</span>
+                     {editMode ? (
+                        <input
+                          type="text"
+                          value={facility.facility_type}
+                          onChange={(e) => setHealthFacilities(prev => prev.map((f, i) => 
+                            i === idx ? { ...f, facility_type: e.target.value } : f
+                          ))}
+                          className="bg-slate-700 text-slate-200 text-lg font-semibold px-2 py-1 rounded w-full text-center mx-auto"
+                        />
+                      ) :
+                      <span className="text-white font-medium text-sm">{facility.facility_type}</span>
+                    }
                   </td>
                   <td className="px-4 py-4 text-center">
                     {editMode ? (
@@ -984,24 +1002,34 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  <th  className="border-2 border-slate-600 bg-green-100 px-4 py-3 text-center align-middle">
-                    <span className="text-slate-800 font-bold text-sm">BLOOD SERVICE FACILITY</span>
-                  </th>
-                  <th  className="border-2 border-slate-600 bg-green-100 px-4 py-3 text-center">
-                    <span className="text-slate-800 font-bold text-sm">Number of blood units</span>
-                  </th>
-                  <th  className="border-2 border-slate-600 bg-green-100 px-4 py-3 text-center">
-                    <span className="text-slate-800 font-bold text-sm">Human Milk Donations</span>
-                  </th>
-                  <th  className="border-2 border-slate-600 bg-green-100 px-4 py-3 text-center">
-                    <span className="text-slate-800 font-bold text-sm">Vaccines</span>
-                  </th>
-                  <th className="border-2 border-slate-600 bg-green-100 px-4 py-3 text-center align-middle">
-                    <span className="text-slate-800 font-bold text-sm">Recipient</span>
-                  </th>
+                  {cardTitle?.other_medical_services_header.map((item, index) => (
+                    <th
+                      key={index}
+                      className="border-2 border-slate-600 bg-green-100 px-4 py-3 text-center align-middle"
+                    >
+                      {editMode ? (
+                        <input
+                          type="text"
+                          value={item}
+                          onChange={(e) =>
+                            setCardTitle((prev) => {
+                              const updated = [...prev.other_medical_services_header];
+                              updated[index] = e.target.value;
+                              return {
+                                ...prev,
+                                other_medical_services_header: updated,
+                              };
+                            })
+                          }
+                          className="bg-green-900 text-white text-xs font-bold mb-2 rounded px-2 py-1 w-full text-center mx-auto block"
+                        />
+                      ) : (
+                        <span className="text-slate-800 font-bold text-sm">{item}</span>
+                      )}
+                    </th>
+                  ))}
                 </tr>
-                
-               
+      
               </thead>
               <tbody>
                 {
@@ -1041,40 +1069,8 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
                         )  
                       }
                       </td>
-                      <td className="border-2 border-slate-600 bg-slate-750 px-4 py-3">
-                        {editMode ? (
-                          <input
-                            type="number"
-                            value={data.human_milk}
-                            onChange={(e) => {
-                              const updatedBloodData = [...bloodData];
-                              updatedBloodData[index].human_milk = parseInt(e.target.value) || 0;
-                              setBloodData(updatedBloodData)
-                            }}
-                            className="bg-slate-700 text-slate-200 text-2xl font-bold px-2 py-1 rounded w-24 text-right"
-                          />
-                        ) : (
-                          <span className="text-slate-200 text-2xl">{data.human_milk}</span>
-                        )  
-                      }
-                      </td>
-                      <td className="border-2 border-slate-600 bg-slate-750 px-4 py-3">
-                        {editMode ? (
-                          <input
-                            type="number"
-                            value={data.vaccines}
-                            onChange={(e) => {
-                              const updatedBloodData = [...bloodData];
-                              updatedBloodData[index].vaccines = parseInt(e.target.value) || 0;
-                              setBloodData(updatedBloodData)
-                            }}
-                            className="bg-slate-700 text-slate-200 text-2xl font-bold px-2 py-1 rounded w-24 text-right"
-                          />
-                        ) : (
-                          <span className="text-slate-200 text-2xl">{data.vaccines}</span>
-                        )  
-                      }
-                      </td>
+                     
+                      
                       
                       <td className="border-2 border-slate-600 bg-slate-750 px-4 py-3">
                         {editMode ? (
@@ -1199,7 +1195,17 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
                 return (
                   <tr key={idx} className="hover:bg-slate-750 transition-colors">
                     <td className="border-2 border-slate-600 bg-slate-700 px-4 py-3">
+                      {editMode ? (
+                        <input
+                          type="text"
+                          value={hospital.hospital_name}
+                          onChange={(e) => setHospitalCensus(prev => prev.map((h, i) => 
+                            i === idx ? { ...h, hospital_name: e.target.value } : h
+                          ))}
+                          className="bg-slate-700 text-slate-200 text-lg font-semibold px-2 py-1 rounded w-full text-center"
+                        />) :
                       <span className="text-white font-semibold text-sm">{hospital.hospital_name}</span>
+                    }
                     </td>
                     <td className="border-2 border-slate-600 bg-slate-750 px-4 py-3 text-center">
                       {editMode ? (
