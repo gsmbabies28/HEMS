@@ -13,6 +13,6 @@ class PersonnelDeployed extends Model
         'position',
         'assigned_facility',
         'deployment_start_date',
-        'health_cluster_team_id',
+        'health_cluster_team',
     ];
 }

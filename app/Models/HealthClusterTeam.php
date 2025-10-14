@@ -14,4 +14,5 @@ class HealthClusterTeam extends Model
         'water_sanitation_hygiene',
         'mental_health_psychosocial_support',
     ];
+
 }

@@ -137,5 +137,33 @@ class DashboardController extends Controller
     {
         Storage::disk('local')->put('data/header.json', json_encode($data, JSON_PRETTY_PRINT));
     }
+
+    public function updatePersonnel(Request $request)
+    {   
+        // dd($request->all());
+       $validatedData = $request->validate([
+            'personnel' => 'required|array',
+            'personnel.*.id' => 'required|integer',
+            'personnel.*.full_name' => 'required|string|max:255',
+            'personnel.*.position' => 'nullable|string|max:255',
+            'personnel.*.assigned_facility' => 'nullable|string|max:255',
+            'personnel.*.deployment_start_date' => 'nullable|date',
+            'personnel.*.health_cluster_team' => 'required|string|max:255',
+        ]);
+        
+        $this->updateMultipleRecords(PersonnelDeployed::class, $validatedData['personnel']);
+
+    }
+
+    public function deletePersonnel($id)
+    {
+        $person = PersonnelDeployed::find($id);
+        if ($person) {
+            $person->delete();
+            // return response()->json(['message' => 'Personnel record deleted successfully.']);
+        } else {
+            // return response()->json(['message' => 'Personnel record not found.'], 404);
+        }
+    }
     
 }

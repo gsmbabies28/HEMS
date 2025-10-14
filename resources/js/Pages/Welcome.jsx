@@ -3,19 +3,20 @@ import { AlertTriangle, Users, Heart, Activity, Zap, Droplet, Home, Edit2, Save,
 import { router, } from '@inertiajs/react';
 import Logistics from '@/Components/Logistics';
 import ToggleSwitch from '@/Components/ToggleSwitch';
+import QuickStatus from '@/Components/QuickStatus';
 import {sections, medicalServices} from '@/utils/utils';
+import DeployedModal from '@/Components/DeployedModal';
 
-export default function Welcome({ personnelDeployedProp, affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp, prepositionedResourcesProp, availableResourcesProp, headerTitleProp})  {
+export default function Welcome({ affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp, prepositionedResourcesProp, availableResourcesProp, headerTitleProp, personnelDeployedProp})  {
   const [selectedLGU, setSelectedLGU] = useState(null);
+  const [modalShow, setModalShow] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [sliderOff, setSliderOff] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
-  
   const [affectedData, setAffectedData] = useState(...affectedDataProp);
   const [casualties, setCasualties] = useState(...casualtiesProp);
   const [healthFacilities, setHealthFacilities] = useState(healthFacilitiesProp.length ? healthFacilitiesProp : [] );
   const [deployedHRH, setDeployedHRH] = useState(
-
     deployedHRHProp ??
     {
       doctors: 0,
@@ -56,7 +57,7 @@ export default function Welcome({ personnelDeployedProp, affectedDataProp, casua
 
   // Add section indicator dots
   const SectionIndicator = () => (
-    <div claasdsadassName="fixed right-4 top-1/2 transform -translate-y-1/2 z-20 flex flex-col gap-2">
+    <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-20 flex flex-col gap-2">
       {sections.map((_, index) => (
         <button
           key={index}
@@ -78,6 +79,13 @@ export default function Welcome({ personnelDeployedProp, affectedDataProp, casua
       ...prev,
       [key]: parseInt(value) || 0
     }));
+  };
+
+  const [modalData, setModalData] = useState([]);
+
+  const handleShowModal = (value) => {
+    setModalShow(prev => !prev);
+    setModalData({...value, personnel: personnelDeployedProp.filter(p => p.health_cluster_team === value.category) });
   };
 
   // Role labels mapping
@@ -218,6 +226,7 @@ export default function Welcome({ personnelDeployedProp, affectedDataProp, casua
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
       {/* Section Indicator */}
       <SectionIndicator />
+     <DeployedModal show={modalShow} setModalShow={setModalShow} modalData={modalData} setModalData={setModalData}  />
 
       {/* Header */}
       <div className="mb-8 flex justify-between items-start bg-slate-900/70 backdrop-blur-md p-4 rounded-lg shadow-lg z-10">
@@ -239,8 +248,7 @@ export default function Welcome({ personnelDeployedProp, affectedDataProp, casua
               <X size={18} />
               Cancel
             </button>
-        )}*/}
-        
+        )}*/}        
         <button
           onClick={() => {
             if (!editMode) {
@@ -792,7 +800,9 @@ export default function Welcome({ personnelDeployedProp, affectedDataProp, casua
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             {healthClusterTeams.map((team, idx) => (
-              <div key={idx} className={`bg-gradient-to-br ${team.color} rounded-lg p-6 shadow-lg`}>
+              <div key={idx} className={`bg-gradient-to-br ${team.color} rounded-lg p-6 shadow-lg cursor-pointer hover:scale-105 transition-transform relative`} 
+                onClick={() => handleShowModal(team)}
+              >
                 <div className="text-center">
                   {editMode ? (
                     <input
@@ -809,6 +819,7 @@ export default function Welcome({ personnelDeployedProp, affectedDataProp, casua
                   <div className="text-sm font-semibold text-white mb-1">Teams</div>
                   <div className="text-xs text-white/90 leading-tight">{team.category}</div>
                 </div>
+                
               </div>
             ))}
           </div>

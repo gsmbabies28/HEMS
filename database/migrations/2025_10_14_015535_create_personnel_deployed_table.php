@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('full_name');
             $table->string('position');
-            $table->string('assigned_facility');
+            $table->string('assigned_facility')->nullable();
             $table->date('deployment_start_date');
-            $table->foreignId('health_cluster_team_id')->constrained('health_cluster_teams_deployed')->onDelete('cascade');
+            $table->string('health_cluster_team')->nullable();
             $table->timestamps();
         });
     }
