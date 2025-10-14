@@ -5,18 +5,17 @@ import Logistics from '@/Components/Logistics';
 import ToggleSwitch from '@/Components/ToggleSwitch';
 import {sections, medicalServices} from '@/utils/utils';
 
-export default function Welcome({affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp, prepositionedResourcesProp, availableResourcesProp, headerTitleProp})  {
+export default function Welcome({ personnelDeployedProp, affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp, prepositionedResourcesProp, availableResourcesProp, headerTitleProp})  {
   const [selectedLGU, setSelectedLGU] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [sliderOff, setSliderOff] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
-
-  console.log(headerTitleProp);
   
   const [affectedData, setAffectedData] = useState(...affectedDataProp);
   const [casualties, setCasualties] = useState(...casualtiesProp);
   const [healthFacilities, setHealthFacilities] = useState(healthFacilitiesProp.length ? healthFacilitiesProp : [] );
   const [deployedHRH, setDeployedHRH] = useState(
+
     deployedHRHProp ??
     {
       doctors: 0,
@@ -57,7 +56,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
 
   // Add section indicator dots
   const SectionIndicator = () => (
-    <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-20 flex flex-col gap-2">
+    <div claasdsadassName="fixed right-4 top-1/2 transform -translate-y-1/2 z-20 flex flex-col gap-2">
       {sections.map((_, index) => (
         <button
           key={index}

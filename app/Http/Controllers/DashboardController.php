@@ -13,6 +13,7 @@ use App\Models\MedicalServicesProvided;
 use App\Models\MobilizedResources;
 use App\Models\OtherMedicalServicesProvided;
 use App\Models\PatientCatered;
+use App\Models\PersonnelDeployed;
 use App\Models\PrepositionResources;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -35,9 +36,11 @@ class DashboardController extends Controller
         $patientCatered = PatientCatered::first();
         $prepositionedResources = PrepositionResources::first(); // Placeholder for future implementation
         $availableResources = AvailableResources::first(); // Placeholder for future implementation
+        $personnelDeployed = PersonnelDeployed::all(); // Placeholder for future implementation
+
         $json = Storage::disk('local')->get('data/header.json');
         $headerTitle = json_decode($json, true);
-        
+
         return Inertia::render('Welcome', [
             'affectedDataProp' => $affectedData,
             'casualtiesProp' => $casualties,
@@ -52,6 +55,7 @@ class DashboardController extends Controller
             'prepositionedResourcesProp' => $prepositionedResources,
             'availableResourcesProp' => $availableResources,
             'headerTitleProp' => $headerTitle,
+            'personnelDeployedProp' => $personnelDeployed,
         ]);
     }
 
