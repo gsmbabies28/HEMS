@@ -1,4 +1,5 @@
 import '../css/app.css';
+import '../css/toggleSwitch.css';
 import './bootstrap';
 
 import { createInertiaApp } from '@inertiajs/react';

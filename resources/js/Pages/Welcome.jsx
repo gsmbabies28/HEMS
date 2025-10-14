@@ -1,11 +1,13 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { AlertTriangle, Users, Heart, Activity, Zap, Droplet, Home, Edit2, Save, Building2, Nfc, HandPlatter, X } from 'lucide-react';
-import { router, useForm, usePage } from '@inertiajs/react';
+import { router, } from '@inertiajs/react';
 import Logistics from '@/Components/Logistics';
+import QuickStatus from '@/Components/QuickStatus';
 
 export default function Welcome({affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp, prepositionedResourcesProp, availableResourcesProp})  {
   const [selectedLGU, setSelectedLGU] = useState(null);
   const [editMode, setEditMode] = useState(false);
+  const [slideOff, setSlideOff] = useState(true);
   const [currentSection, setCurrentSection] = useState(0);
   
   const [affectedData, setAffectedData] = useState(...affectedDataProp);
@@ -41,7 +43,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
 
   // Auto-scroll through sections every 10 seconds
   useEffect(() => {
-    if (editMode) return; // Don't auto-scroll when in edit mode
+    if (editMode || slideOff) return; // Don't auto-scroll when in edit mode
     
     const interval = setInterval(() => {
       setCurrentSection(prev => (prev + 1) % sections.length);
@@ -75,6 +77,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
           title={`Go to section ${index + 1}`}
         />
       ))}
+      <ToggleSwitch />
     </div>
   );
 
@@ -487,25 +490,6 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
           </div>
         </div>
 
-        {/* Quick Status */}
-        <div className="bg-slate-800 rounded-lg p-6 shadow-xl border border-slate-700">
-          <h3 className="text-slate-300 text-sm font-semibold mb-4">QUICK STATUS</h3>
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span className="text-slate-400 text-xs">1 LGU Operational</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-              <span className="text-slate-400 text-xs">5 LGUs Partial</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span className="text-slate-400 text-xs">1 LGU Critical</span>
-            </div>
-          </div>
-        </div>
-
         {/* Deployed Human Resources */}
         <div className="bg-gradient-to-br from-teal-600 to-teal-700 rounded-lg p-6 shadow-xl">
           <div className="flex items-start justify-between mb-4">
@@ -647,6 +631,7 @@ export default function Welcome({affectedDataProp, casualtiesProp, healthFacilit
           </table>
         </div>
       </div>
+      <QuickStatus />
 
       {/* Damaged Health Facilities */}
       <div 
