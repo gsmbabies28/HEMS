@@ -33,4 +33,5 @@ Route::get('/', [DashboardController::class, 'index'])->name('hems');
 
 Route::put('/hems', [DashboardController::class , 'update'])->name('hems.update');
 
+
 require __DIR__.'/auth.php';
