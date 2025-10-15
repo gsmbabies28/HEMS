@@ -7,7 +7,7 @@ import QuickStatus from '@/Components/QuickStatus';
 import {sections, medicalServices} from '@/utils/utils';
 import DeployedModal from '@/Components/DeployedModal';
 
-export default function Welcome({ affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp, prepositionedResourcesProp, availableResourcesProp, headerTitleProp, personnelDeployedProp})  {
+export default function Welcome({ auth, affectedDataProp, casualtiesProp, healthFacilitiesProp, deployedHRHProp, healthClusterTeamsProp, medicalServicesProvidedProp, bloodDataProp, mobilizedResourcesProp, hospitalCensusProp, patientCateredProp, prepositionedResourcesProp, availableResourcesProp, headerTitleProp, personnelDeployedProp})  {
   const [selectedLGU, setSelectedLGU] = useState(null);
   const [modalShow, setModalShow] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -16,6 +16,7 @@ export default function Welcome({ affectedDataProp, casualtiesProp, healthFacili
   const [affectedData, setAffectedData] = useState(...affectedDataProp);
   const [casualties, setCasualties] = useState(...casualtiesProp);
   const [healthFacilities, setHealthFacilities] = useState(healthFacilitiesProp.length ? healthFacilitiesProp : [] );
+  
   const [deployedHRH, setDeployedHRH] = useState(
     deployedHRHProp ??
     {
@@ -221,7 +222,7 @@ export default function Welcome({ affectedDataProp, casualtiesProp, healthFacili
 
       setEditMode(false);
     };
-
+console.log(auth);
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
       {/* Section Indicator */}
@@ -248,35 +249,38 @@ export default function Welcome({ affectedDataProp, casualtiesProp, healthFacili
               <X size={18} />
               Cancel
             </button>
-        )}*/}        
-        <button
-          onClick={() => {
-            if (!editMode) {
-              setEditMode(true);
-            }
-          }}
-          className={`flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all shadow-lg ${
-            editMode 
-              ? 'bg-green-600 hover:bg-green-700 text-white' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}
-        >
-          {editMode ? (
-            <div 
-              onClick={handleSubmit} 
-              className="flex items-center gap-2"
-            >
-              <Save size={18} />
-              Save Changes
-            </div>
-            
-          ) : (
-            <>
-              <Edit2 size={18} />
-              Edit Data
-            </>
-          )}
-        </button>
+        )}*/}
+        { auth.user &&
+          (<button
+            onClick={() => {
+              if (!editMode) {
+                setEditMode(true);
+              }
+            }}
+            className={`flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all shadow-lg ${
+              editMode 
+                ? 'bg-green-600 hover:bg-green-700 text-white' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+          >
+            {editMode ? (
+              <div 
+                onClick={handleSubmit} 
+                className="flex items-center gap-2"
+              >
+                <Save size={18} />
+                Save Changes
+              </div>
+              
+            ) : (
+              <>
+                <Edit2 size={18} />
+                Edit Data
+              </>
+            )}
+          </button>)
+        }        
+        
       </div>
       {/* Top Stats Grid */}
       <div 
@@ -550,7 +554,7 @@ export default function Welcome({ affectedDataProp, casualtiesProp, healthFacili
                       >
                         <option value="Fully Functional">Fully Functional</option>
                         <option value="Partly Functional">Partly Functional</option>
-                        <option value="Non-Functional">Partly Functional</option>
+                        <option value="Non-Functional">Non-Functional</option>
                       </select> :
                       <span className={`text-xs px-3 py-1 rounded-full ${
                         item.power === 'Fully Functional' 
@@ -571,7 +575,7 @@ export default function Welcome({ affectedDataProp, casualtiesProp, healthFacili
                       >
                         <option value="Fully Functional">Fully Functional</option>
                         <option value="Partly Functional">Partly Functional</option>
-                        <option value="Non-Functional">Partly Functional</option>
+                        <option value="Non-Functional">Non-Functional</option>
                       </select> :
                       <span className={`text-xs px-3 py-1 rounded-full ${
                         item.water === 'Fully Functional' 
@@ -593,7 +597,7 @@ export default function Welcome({ affectedDataProp, casualtiesProp, healthFacili
                       >
                         <option value="Fully Functional">Fully Functional</option>
                         <option value="Partly Functional">Partly Functional</option>
-                        <option value="Non-Functional">Partly Functional</option>
+                        <option value="Non-Functional">Non-Functional</option>
                       </select> :
                       <span className={`text-xs px-3 py-1 rounded-full ${
                         item.roads === 'Fully Functional' 
@@ -620,7 +624,7 @@ export default function Welcome({ affectedDataProp, casualtiesProp, healthFacili
                       >
                         <option value="Fully Functional">Fully Functional</option>
                         <option value="Partly Functional">Partly Functional</option>
-                        <option value="Non-Functional">Partly Functional</option>
+                        <option value="Non-Functional">Non-Functional</option>
                       </select> :
                     <span className={`text-xs px-3 py-1 rounded-full ${
                       item.communications === 'Fully Functional' 
@@ -639,9 +643,9 @@ export default function Welcome({ affectedDataProp, casualtiesProp, healthFacili
                         value={item.status}
                         onChange={(e) => handleLguChange('status', e.target.value, idx)}
                       >
-                        <option value="good">Fully Functional</option>
-                        <option value="warning">Partly Functional</option>
-                        <option value="critical">Partly Functional</option>
+                        <option value="good">Good</option>
+                        <option value="warning">Warning</option>
+                        <option value="critical">Critical</option>
                       </select> :
                     <div className={`w-4 h-4 rounded-full ${getStatusColor(item.status)} mx-auto shadow-lg`}></div>
                   }
@@ -818,8 +822,7 @@ export default function Welcome({ affectedDataProp, casualtiesProp, healthFacili
                   )}
                   <div className="text-sm font-semibold text-white mb-1">Teams</div>
                   <div className="text-xs text-white/90 leading-tight">{team.category}</div>
-                </div>
-                
+                </div>                
               </div>
             ))}
           </div>
